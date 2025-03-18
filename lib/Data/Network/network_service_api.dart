@@ -12,7 +12,7 @@ class NetworkServiceApi implements BaseApiServices {
   // 👉 GET API (Fetch Data)
   @override
   Future<dynamic> getApi(String url, {Map<String, String>? headers}) async {
-    print("Network Get Api ;- " + url);
+    // print("Network Get Api ;- " + url);
     try {
       final response = await http
           .get(Uri.parse(url), headers: headers)
@@ -20,7 +20,7 @@ class NetworkServiceApi implements BaseApiServices {
 
       // Ensure we return the original Response object
 
-      print("Network Get Risponse ;- " + response.body.toString());
+      // print("Network Get Risponse ;- " + response.body.toString());
       return returnResponse(response);
     } on SocketException {
       throw noInternetException('❌ No Internet Connection');
@@ -80,28 +80,27 @@ class NetworkServiceApi implements BaseApiServices {
   }
 
   // 👉 PUT API (Update Data)
-  Future<dynamic> putApi(
+  Future<dynamic> updateApi(
     String url,
     dynamic data, {
     Map<String, String>? headers,
   }) async {
-    dynamic jsonResponse;
     try {
       final response = await http
-          .put(
+          .patch(
             Uri.parse(url),
             body: jsonEncode(data),
             headers: headers ?? _defaultHeaders,
           )
           .timeout(const Duration(seconds: 20));
 
-      jsonResponse = returnResponse(response);
+      // final jsonResponse = returnResponse(response);
+      return response;
     } on SocketException {
       throw noInternetException('No Internet Connection');
     } on TimeoutException {
       throw fetchDataExeption('Request Timeout. Try Again.');
     }
-    return jsonResponse;
   }
 
   // 👉 DELETE API (Delete Data)
@@ -133,6 +132,7 @@ class NetworkServiceApi implements BaseApiServices {
       case 403:
         throw unAuthorizedException('❌ Unauthorized Access');
       case 404:
+      case 405:
         throw fetchDataExeption('❌ Resource Not Found: ${response.body}');
       case 500:
       default:

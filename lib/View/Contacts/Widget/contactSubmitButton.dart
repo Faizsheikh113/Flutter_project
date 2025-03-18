@@ -9,7 +9,11 @@ import 'package:simple_test_practice/Config/Components/Loading_widget.dart';
 
 class SubmitButton extends StatelessWidget {
   final formkey;
-  const SubmitButton({super.key, required this.formkey});
+  const SubmitButton({
+    super.key,
+    required this.formkey,
+    required void Function() onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +33,7 @@ class SubmitButton extends StatelessWidget {
       child: BlocBuilder<ContactBloc, ContactState>(
         buildWhen:
             (previous, current) =>
-              current.contactApiStatus != previous.contactApiStatus,
+                current.contactApiStatus != previous.contactApiStatus,
         builder: (context, state) {
           return state.contactApiStatus == ContactApiStatus.loading
               ? const LoadingWidget()

@@ -4,33 +4,50 @@ import 'package:simple_test_practice/Bloc/ContactBloc/contact_bloc.dart';
 
 class ContactFirstNameInput extends StatelessWidget {
   final FocusNode FirstNameFocusNode;
-  const ContactFirstNameInput({super.key, required this.FirstNameFocusNode});
+    final TextEditingController controller;
+
+  const ContactFirstNameInput({
+    super.key,
+    required this.FirstNameFocusNode,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ContactBloc, ContactState>(
-      buildWhen: (current, previous) => current.firstName != previous.firstName,
-      builder: (context, state) {
-        return TextFormField(
-          maxLength: 50,
-          focusNode: FirstNameFocusNode,
-          decoration: const InputDecoration(
-            hintText: 'Enter your first name...',
-            labelText: 'First name',
-            border: OutlineInputBorder(),
-          ),
-          onChanged: (value) {
-            context.read<ContactBloc>().add(FirstNameChanged(value));
-          },
-          validator: (value) {
-            if (value!.isEmpty) {
-              return 'Enter FirstName';
-            }
-            return null;
-          },
-          onFieldSubmitted: (value) {},
+    return BlocListener<ContactBloc, ContactState>(
+      listener: (context, state) {
+        print(
+          "First Name Listnerr ----------------------------------x" +
+              state.firstName,
         );
       },
+      child: BlocBuilder<ContactBloc, ContactState>(
+        // buildWhen:
+        //     (current, previous) => current.firstName != previous.firstName,
+
+        builder: (context, state) {
+          return TextFormField(
+            maxLength: 50,
+            focusNode: FirstNameFocusNode,
+            decoration: const InputDecoration(
+              hintText: 'Enter your first name...',
+              labelText: 'First name',
+              border: OutlineInputBorder(),
+            ),
+            // initialValue: state.firstName,
+            onChanged: (value) {
+              context.read<ContactBloc>().add(FirstNameChanged(value));
+            },
+            validator: (value) {
+              if (value!.isEmpty) {
+                return 'Enter FirstName';
+              }
+              return null;
+            },
+            onFieldSubmitted: (value) {},
+          );
+        },
+      ),
     );
   }
 }

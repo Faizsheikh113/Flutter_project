@@ -4,26 +4,30 @@ import 'package:simple_test_practice/Bloc/ContactBloc/contact_bloc.dart';
 
 class ContactSalutationInput extends StatelessWidget {
   final FocusNode SalutationFocusNode;
+  
+  final TextEditingController controller;
   const ContactSalutationInput({
     super.key,
-    required this.SalutationFocusNode,
+    required this.SalutationFocusNode, required  this.controller,
     // required TextEditingController controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ContactBloc, ContactState>(
-      buildWhen:
-          (current, previous) => current.salutation != previous.salutation,
+      // buildWhen:
+      //     (current, previous) => current.salutation != previous.salutation,
       builder: (context, state) {
         return TextFormField(
           maxLength: 50,
           focusNode: SalutationFocusNode,
+          controller: controller,
           decoration: const InputDecoration(
             hintText: 'ex:- Mr.',
             labelText: 'Salutation',
             border: OutlineInputBorder(),
           ),
+          // initialValue: state.salutation,
           onChanged: (value) {
             context.read<ContactBloc>().add(SalutationChanged(value));
           },

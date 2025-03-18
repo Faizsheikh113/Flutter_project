@@ -8,6 +8,7 @@ import 'package:simple_test_practice/Data/Exceptions/Exception_test.dart';
 import 'package:simple_test_practice/Data/Network/network_service_api.dart';
 import 'package:simple_test_practice/Model/Contact/contact_model.dart';
 import 'package:simple_test_practice/Repository/ContactRepo/contact_repositery.dart';
+// import 'package:flutter/scheduler.dart';
 
 class ContactHttpRepository implements ContactRepository {
   final NetworkServiceApi _api = NetworkServiceApi();
@@ -46,8 +47,8 @@ class ContactHttpRepository implements ContactRepository {
   }
 
   @override
-  Future<List<Contact>> getContactById(String contactId, String token) async {
-    print("getContactById :- ");
+  Future<Contact> getContactById(String contactId, String token) async {
+    print("getContactById called");
     final url = Apiurl.contactById(contactId);
     final response = await _api.getApi(
       url,
@@ -56,26 +57,75 @@ class ContactHttpRepository implements ContactRepository {
         'Content-Type': 'application/json',
       },
     );
-    print("FetchSingleContact :- " + response.toString());
 
-    return ContactResponse.fromJson(response).records;
+    print("API Response: $response");
+
+    try {
+      // Ensure we decode the response if it is a string
+      final Map<String, dynamic> responseData =
+          response is String ? jsonDecode(response) : response;
+
+      return Contact.fromJson(responseData);
+    } catch (e) {
+      print("Error parsing Contact: $e");
+      throw Exception("Error parsing Contact: $e");
+    }
   }
 
-  @override
   Future<void> updateContact(
     String contactId,
     Contact contact,
     String token,
+    BuildContext context,
   ) async {
-    print("Updating Contact...");
-    await _api.putApi(
-      Apiurl.contactById(contactId),
-      contact.toJson(),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+    print(
+      "Updating Contact method id.................................$contactId",
     );
+    print(
+      "Updating Contact method contact..........................${contact.toString()}",
+    );
+    print("Updating Contact method token.............................$token");
+
+    final url = Apiurl.contactById(contactId);
+
+    try {
+      final response = await _api.updateApi(
+        url,
+        contact.toJson(),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 204) {
+        print("✅ Contact updated successfully.");
+
+        FlushbarIndecator.showSuccess(
+          'Contact updated successfully...',
+          context,
+        );
+        return;
+      }
+
+      String errorMessage = 'Failed to update contact.';
+      if (response.statusCode == 405) {
+        final List<dynamic> errors = jsonDecode(response.body);
+        if (errors.isNotEmpty && errors.first['message'] != null) {
+          errorMessage = errors.first['message'];
+        }
+      }
+
+      throw fetchDataExeption('Message: ❌ $errorMessage');
+    } catch (e, stackTrace) {
+      print("🚨 Error during update operation: $e");
+      print("📊 Stack Trace: $stackTrace");
+
+      if (context.mounted) {
+        FlushbarIndecator.showError(e.toString(), context);
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -118,7 +168,8 @@ class ContactHttpRepository implements ContactRepository {
       }
 
       throw fetchDataExeption(
-        '❌ Delete failed. Status: ${response.statusCode}, Message: $errorMessage',
+        // '❌ Delete failed. Status: ${response.statusCode}, Message: $errorMessage',
+        'Message: ❌$errorMessage',
       );
     } catch (e, stackTrace) {
       print("🚨 Error during delete operation: $e");

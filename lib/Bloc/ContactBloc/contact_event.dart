@@ -29,6 +29,7 @@ class SalutationChanged extends ContactEvents {
 
 class ContactButtonEvent extends ContactEvents {}
 
+
 class FetchContactListEvent extends ContactEvents {}
 
 class FetchSingleContactEvent extends ContactEvents {
@@ -39,14 +40,24 @@ class FetchSingleContactEvent extends ContactEvents {
   List<Object> get props => [contactId];
 }
 
+// For Updating a Contact
 class UpdateContactEvent extends ContactEvents {
   final String contactId;
+  final BuildContext context; 
   final Contact updatedContact;
-  const UpdateContactEvent(this.contactId, this.updatedContact);
+  const UpdateContactEvent(this.contactId, this.updatedContact, this.context);
+
+  @override
+  List<Object> get props => [contactId, updatedContact];
 }
 
 class DeleteContactEvent extends ContactEvents {
   final String contactId;
   final BuildContext context; // Add context
   const DeleteContactEvent(this.contactId, this.context);
+}
+
+class ContactLoaded extends ContactState {
+  final Contact contact;
+  ContactLoaded(this.contact);
 }

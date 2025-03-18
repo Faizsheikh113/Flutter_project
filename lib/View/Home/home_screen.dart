@@ -157,7 +157,10 @@ class HomeScreen extends StatelessWidget {
                             icon: const Icon(Icons.edit),
                             onPressed: () {
                               // Navigate to the edit contact screen
-                              context.go('/editContact/${contact.id}');
+                              context.push(
+                                '/editContact/${contact.id}',
+                                extra: contact,
+                              );
                             },
                           ),
                           IconButton(
@@ -192,7 +195,7 @@ class HomeScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go('/addContact');
+          context.push('/addContact');
         },
         child: const Icon(Icons.add),
       ),

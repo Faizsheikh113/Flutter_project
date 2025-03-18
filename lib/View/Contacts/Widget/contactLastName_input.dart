@@ -4,12 +4,18 @@ import 'package:simple_test_practice/Bloc/ContactBloc/contact_bloc.dart';
 
 class ContactLastNameInput extends StatelessWidget {
   final FocusNode LastNameFocusNode;
-  const ContactLastNameInput({super.key, required this.LastNameFocusNode});
+    final TextEditingController controller;
+
+  const ContactLastNameInput({
+    super.key,
+    required this.LastNameFocusNode, required this.controller,
+    // required TextEditingController controller,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ContactBloc, ContactState>(
-      buildWhen: (current, previous) => current.lastName != previous.lastName,
+      // buildWhen: (current, previous) => current.lastName != previous.lastName,
       builder: (context, state) {
         return TextFormField(
           maxLength: 50,
@@ -19,6 +25,7 @@ class ContactLastNameInput extends StatelessWidget {
             labelText: 'Last name',
             border: OutlineInputBorder(),
           ),
+          // initialValue: state.lastName,
           onChanged: (value) {
             context.read<ContactBloc>().add(LastNameChanged(value));
           },

@@ -164,55 +164,78 @@ class ContactBloc extends Bloc<ContactEvents, ContactState> {
     FetchSingleContactEvent event,
     Emitter<ContactState> emit,
   ) async {
-    // ✅ If data is already fetched, use cache and return
-    print(
-      "Fetch Single Contact method Called-----------------------------------------",
-    );
-    print("_OnFetchSingelContacts: Fetching from API...");
+    print("Fetch Single Contact method called");
     emit(state.copyWith(contactApiStatus: ContactApiStatus.loading));
 
     try {
-      final response = await contactRepository.getContactById(
+      final contact = await contactRepository.getContactById(
         event.contactId,
         Apiurl.ApiToken,
       );
+      print(
+        "Fetch Single Contact method Called-----------------------------------------" +
+            contact.toString() +
+            contact.firstName.toString() +
+            contact.lastName.toString(),
+      );
+      print(
+        "Fetch Single Contact method Called-----------------------------------------" +
+            contact.firstName.toString(),
+      );
+      print(
+        "Fetch Single Contact method Called-----------------------------------------" +
+            contact.lastName.toString(),
+      );
+      print(
+        "Fetch Single Contact method Called-----------------------------------------" +
+            contact.email.toString(),
+      );
 
-      if (response.isNotEmpty) {
-        emit(
-          state.copyWith(
-            contactList: response,
-            contactApiStatus: ContactApiStatus.success,
-            shouldFetch: false,
-          ),
-        );
-      } else {
-        throw Exception('Failed to fetch contacts');
-      }
-    } catch (error) {
       emit(
         state.copyWith(
-          message: '❌ Error fetching contacts: $error',
+          id: contact.id,
+          email: contact.email,
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          salutation: contact.salutation,
+          contactApiStatus: ContactApiStatus.initial,
+          shouldFetch: false,
+        ),
+      );
+    } catch (error, stackTrace) {
+      print("Error in _onFetchSingleContacts: $error");
+      print(stackTrace);
+
+      emit(
+        state.copyWith(
+          message: '❌ Error fetching contact: $error',
           contactApiStatus: ContactApiStatus.failure,
         ),
       );
     }
   }
 
-  // 🟡 Update Contact (Optimized without refetching)
   Future<void> _onUpdateContact(
     UpdateContactEvent event,
     Emitter<ContactState> emit,
   ) async {
+    print(
+      "Update Object :------------------------------ ${event.updatedContact}",
+    );
+    print("Update id :--------------------------------- ${event.contactId}");
+
     emit(state.copyWith(contactApiStatus: ContactApiStatus.loading));
 
     try {
+      // ✅ Update Contact in Salesforce
       await contactRepository.updateContact(
         event.contactId,
         event.updatedContact,
         Apiurl.ApiToken,
+        event.context,
       );
 
-      // ✅ Update the local cache (Modify the contact in the list)
+      // ✅ Update local cache (Modify the specific contact in the list)
       final updatedContactList =
           state.contactList.map((contact) {
             return contact.id == event.contactId
@@ -222,14 +245,16 @@ class ContactBloc extends Bloc<ContactEvents, ContactState> {
 
       emit(
         state.copyWith(
-          contactList: updatedContactList, // Updated local list
-          message: '✅ Contact Updated Successfully!',
+          contactList: updatedContactList,
+          message: 'Contact updated successfully!',
           contactApiStatus: ContactApiStatus.success,
         ),
       );
 
       print("🟢 Contact Updated: ${event.updatedContact.toJson()}");
-    } catch (error) {
+    } catch (error, stackTrace) {
+      print("🔴 Error updating contact: $error\n$stackTrace");
+
       emit(
         state.copyWith(
           message: '❌ Error updating contact: $error',

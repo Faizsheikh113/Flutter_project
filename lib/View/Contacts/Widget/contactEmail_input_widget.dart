@@ -5,15 +5,18 @@ import 'package:simple_test_practice/Utils/Validation/Validations.dart';
 
 class ContactEmailInput extends StatelessWidget {
   final FocusNode emailFocusNode;
+    final TextEditingController controller;
+
   const ContactEmailInput({
     super.key,
-    required this.emailFocusNode,
+    required this.emailFocusNode, required this.controller,
+    // required TextEditingController controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ContactBloc, ContactState>(
-      buildWhen: (current, previous) => current.email != previous.email,
+      // buildWhen: (current, previous) => current.email != previous.email,
       builder: (context, state) {
         return TextFormField(
           maxLength: 50,
@@ -23,6 +26,7 @@ class ContactEmailInput extends StatelessWidget {
             labelText: 'Email',
             border: OutlineInputBorder(),
           ),
+          // initialValue: state.email,
           onChanged: (value) {
             context.read<ContactBloc>().add(ContactEmailChanged(value));
           },

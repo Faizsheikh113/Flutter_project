@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:simple_test_practice/Model/Contact/contact_model.dart';
 import 'package:simple_test_practice/View/Contacts/add_contacts_form.dart';
+import 'package:simple_test_practice/View/Contacts/edit_contacts_form.dart';
 import 'package:simple_test_practice/View/Home/home_screen.dart';
 import 'package:simple_test_practice/View/Login/login_screen.dart';
 import 'package:simple_test_practice/View/Splash/splash_screen.dart';
@@ -37,9 +39,10 @@ class AppRouter {
       GoRoute(
         name: '/editContact',
         path: '/editContact/:id',
-        builder:
-            (context, state) =>
-                AddContactScreen(contactId: state.pathParameters['id']),
+        builder: (context, state) {
+          final contact = state.extra as Contact; // Retrieve Contact object
+          return EditContactScreen(contact: contact);
+        },
       ),
     ],
     errorBuilder: (context, state) {
